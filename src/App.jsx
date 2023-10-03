@@ -22,7 +22,7 @@ function App() {
 
   const updateResolve = async (id, name, subject) => {
     const secret = window.prompt(
-      "Enter secret key, make sure you are aware of it as it can't be undone",
+      "Enter secret key. This will send a mail to the user telling that his/her issue is resolved and it can't be undone.",
       ""
     );
     const requestOptions = {
@@ -53,7 +53,7 @@ function App() {
   };
 
   const updateUnResolved = async (id, data, name, subject) => {
-    const secret = window.prompt("Enter secret key", "");
+    const secret = window.prompt("Enter secret key. This will send a mail to the user telling that his/her issue is not resolved along with the message that you have typed in the response box and it can't be undone.", "");
     const requestOptions = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -71,6 +71,9 @@ function App() {
       `https://kiitmunbackend.onrender.com/api/tickets/${id}`,
       requestOptions
     );
+    if (!updateFetch.ok) {
+      alert("Wrong passkey, you aren't authorized");
+    }
 
     const putdata = await updateFetch.json();
     const newTickets = tickets.map((ticket) =>
