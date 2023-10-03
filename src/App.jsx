@@ -5,7 +5,7 @@ import { Toaster } from "react-hot-toast";
 function App() {
   const [tickets, setTickets] = useState([]);
   const [load, setLoad] = useState(false);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
 
   useEffect(() => {
     async function fetchData() {
@@ -17,22 +17,32 @@ function App() {
       setLoad(false);
       setTickets(data);
     }
-    fetchData()
+    fetchData();
   }, []);
 
   const updateResolve = async (id, name, subject) => {
-    const secret = window.prompt("Enter secret key", "");
+    const secret = window.prompt(
+      "Enter secret key, make sure you are aware of it as it can't be undone",
+      ""
+    );
     const requestOptions = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved", name, subject, authCode: secret }),
+      body: JSON.stringify({
+        status: "resolved",
+        name,
+        subject,
+        authCode: secret,
+      }),
     };
     setLoad(true);
     const updateFetch = await fetch(
       `https://kiitmunbackend.onrender.com/api/tickets/${id}`,
       requestOptions
     );
-
+    if (!updateFetch.ok) {
+      alert("Wrong passkey, you aren't authorized");
+    }
     const data = await updateFetch.json();
     const newTickets = tickets.map((ticket) =>
       ticket.id === id ? { ...ticket, status: data.status } : ticket
@@ -42,12 +52,18 @@ function App() {
     return console.log(data);
   };
 
-  const updateUnResolved = async(id,data, name, subject)=>{
+  const updateUnResolved = async (id, data, name, subject) => {
     const secret = window.prompt("Enter secret key", "");
     const requestOptions = {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "unresolved", name, subject, authCode: secret, replyMessage: input}),
+      body: JSON.stringify({
+        status: "unresolved",
+        name,
+        subject,
+        authCode: secret,
+        replyMessage: input,
+      }),
     };
     console.log(secret);
     setLoad(true);
@@ -63,11 +79,11 @@ function App() {
     setLoad(false);
     setTickets(newTickets);
     return console.log(data);
-  }
+  };
 
-  if(!tickets || tickets.length === 0){
+  if (!tickets || tickets.length === 0) {
     console.log(tickets);
-    return <>Site is loading :p</>
+    return <>Site is loading :p</>;
   }
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -84,6 +100,12 @@ function App() {
             </th>
             <th scope="col" className="px-6 py-3">
               Subject
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Description
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Contact
             </th>
             <th scope="col" className="px-6 py-3">
               Status
@@ -107,6 +129,8 @@ function App() {
               </th>
               <td className="px-6 py-4">{ticket.name}</td>
               <td className="px-6 py-4">{ticket.subject}</td>
+              <td className="px-6 py-4">{ticket.description}</td>
+              <td className="px-6 py-4">{ticket.phone}</td>
               <td className="px-6 py-4">
                 {ticket.status ? <>{ticket.status}</> : <>pending</>}
               </td>
@@ -119,10 +143,12 @@ function App() {
                   <></>
                 ) : (
                   <button
-                    className="font-medium bg-blue-400 text-white rounded-md hover:underline"
-                    onClick={() => updateResolve(ticket.id, ticket.name, ticket.subject)}
+                    className="font-medium bg-blue-400 p-2 text-white rounded-md hover:underline"
+                    onClick={() =>
+                      updateResolve(ticket.id, ticket.name, ticket.subject)
+                    }
                   >
-                    Send email and update
+                    Send
                   </button>
                 )}
               </td>
@@ -136,20 +162,30 @@ function App() {
                     ) : ticket.status === "unresolved" ? (
                       <></>
                     ) : (
-                      <form onSubmit={(e)=>{
-                        e.preventDefault()
-                        updateUnResolved(ticket.id, input, ticket.name, ticket.subject)
-                        }}>
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          updateUnResolved(
+                            ticket.id,
+                            input,
+                            ticket.name,
+                            ticket.subject
+                          );
+                        }}
+                      >
                         <input
                           type="text"
                           id="message"
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          placeholder="John"
+                          placeholder="Please write here in a formal tone"
                           required
-                          onChange={(e)=>setInput(e.target.value)}
+                          onChange={(e) => setInput(e.target.value)}
                         />
-                        <button type="submit" className="bg-red-500 p-2 rounded-md text-white">
-                          Send and update
+                        <button
+                          type="submit"
+                          className="bg-red-500 p-2 rounded-md text-white"
+                        >
+                          Send
                         </button>
                       </form>
                     )}
