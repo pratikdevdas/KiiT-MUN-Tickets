@@ -17,7 +17,7 @@ function App() {
       setLoad(false);
       setTickets(data);
     }
-    return () => fetchData();
+    fetchData()
   }, []);
 
   const updateResolve = async (id, name, subject) => {
