@@ -6,7 +6,6 @@ function App() {
   const [tickets, setTickets] = useState([]);
   const [load, setLoad] = useState(false);
   const [input, setInput] = useState('');
-  const [error, setError] = useState('');
 
   useEffect(() => {
     async function fetchData() {
