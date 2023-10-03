@@ -65,6 +65,10 @@ function App() {
     return console.log(data);
   }
 
+  if(!tickets || tickets.length === 0){
+    console.log(tickets);
+    return <>Site is loading :p</>
+  }
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <Toaster position="bottom-center" reverseOrder={true} />
